@@ -617,7 +617,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Handle social sharing
   function handleShare(classList, activityName, activityDetails) {
-    const shareUrl = window.location.origin + window.location.pathname;
+    // Create a URL with activity identifier
+    const activityParam = encodeURIComponent(activityName);
+    const shareUrl = `${window.location.origin}${window.location.pathname}?activity=${activityParam}`;
     const shareText = `Check out ${activityName} at Mergington High School! ${activityDetails.description}`;
     const shareTitle = `${activityName} - Mergington High School`;
 
@@ -641,17 +643,36 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       window.location.href = `mailto:?subject=${emailSubject}&body=${emailBody}`;
     } else if (classList.contains("share-copy")) {
-      // Copy link to clipboard
+      // Copy link to clipboard with fallback for older browsers
       const linkText = `${shareTitle}\n${shareText}\n${shareUrl}`;
-      navigator.clipboard
-        .writeText(linkText)
-        .then(() => {
+      
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard
+          .writeText(linkText)
+          .then(() => {
+            showMessage("Link copied to clipboard!", "success");
+          })
+          .catch((err) => {
+            console.error("Failed to copy:", err);
+            showMessage("Failed to copy link. Please try again.", "error");
+          });
+      } else {
+        // Fallback for browsers without clipboard API
+        const textArea = document.createElement("textarea");
+        textArea.value = linkText;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand("copy");
           showMessage("Link copied to clipboard!", "success");
-        })
-        .catch((err) => {
-          console.error("Failed to copy:", err);
+        } catch (err) {
+          console.error("Fallback copy failed:", err);
           showMessage("Failed to copy link. Please try again.", "error");
-        });
+        }
+        document.body.removeChild(textArea);
+      }
     }
   }
 
