@@ -556,16 +556,16 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="share-label">Share with friends:</div>
         <div class="share-buttons">
           <button class="share-btn share-facebook" data-activity="${name}" title="Share on Facebook" aria-label="Share on Facebook">
-            <span class="share-icon">📘</span>
+            <span class="share-icon" aria-hidden="true">📘</span>
           </button>
           <button class="share-btn share-twitter" data-activity="${name}" title="Share on Twitter" aria-label="Share on Twitter">
-            <span class="share-icon">🐦</span>
+            <span class="share-icon" aria-hidden="true">🐦</span>
           </button>
           <button class="share-btn share-email" data-activity="${name}" title="Share via Email" aria-label="Share via Email">
-            <span class="share-icon">📧</span>
+            <span class="share-icon" aria-hidden="true">📧</span>
           </button>
           <button class="share-btn share-copy" data-activity="${name}" title="Copy link" aria-label="Copy link">
-            <span class="share-icon">🔗</span>
+            <span class="share-icon" aria-hidden="true">🔗</span>
           </button>
         </div>
       </div>
@@ -616,7 +616,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Helper to sanitize and truncate description for sharing
-  function getSafeDescription(description, maxLength = 100) {
+  function getSafeDescription(description, maxLength = 200) {
     if (typeof description !== "string" || !description.trim()) {
       return "";
     }
@@ -633,7 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Create a URL with activity identifier
     const activityParam = encodeURIComponent(activityName);
     const shareUrl = `${window.location.origin}${window.location.pathname}?activity=${activityParam}`;
-    const safeDescription = getSafeDescription(activityDetails.description, 200);
+    const safeDescription = getSafeDescription(activityDetails.description);
     const shareText = `Check out ${activityName} at Mergington High School!${safeDescription ? " " + safeDescription : ""}`;
     const shareTitle = `${activityName} - Mergington High School`;
 
@@ -955,6 +955,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Handle shared link with activity parameter
+  function handleSharedActivityLink() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const activityName = urlParams.get("activity");
+    
+    if (activityName) {
+      // Wait for activities to load, then scroll to the activity
+      const checkAndScroll = setInterval(() => {
+        const activityCards = document.querySelectorAll(".activity-card");
+        
+        for (const card of activityCards) {
+          const cardTitle = card.querySelector("h4");
+          if (cardTitle && cardTitle.textContent === activityName) {
+            // Scroll to the activity card
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            
+            // Highlight the card temporarily
+            card.style.transition = "all 0.3s ease";
+            card.style.backgroundColor = "#fffbea";
+            card.style.boxShadow = "0 0 0 3px var(--primary-light)";
+            
+            // Remove highlight after 3 seconds
+            setTimeout(() => {
+              card.style.backgroundColor = "";
+              card.style.boxShadow = "";
+            }, 3000);
+            
+            clearInterval(checkAndScroll);
+            break;
+          }
+        }
+      }, 100);
+      
+      // Stop checking after 5 seconds if activity not found
+      setTimeout(() => clearInterval(checkAndScroll), 5000);
+    }
+  }
+
   // Expose filter functions to window for future UI control
   window.activityFilters = {
     setDayFilter,
@@ -964,5 +1002,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   checkAuthentication();
   initializeFilters();
-  fetchActivities();
+  fetchActivities().then(() => {
+    // Handle shared link after activities are loaded
+    handleSharedActivityLink();
+  });
 });
