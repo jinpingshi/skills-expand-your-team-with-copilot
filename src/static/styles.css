@@ -315,15 +315,6 @@ section h3 {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
-/* Accessibility: Show visible focus for keyboard navigation */
-.share-btn:focus-visible,
-.share-btn:focus {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-  border-color: var(--primary);
-  z-index: 1;
-}
-
 .share-btn.share-facebook:hover {
   background-color: #e7f3ff;
   border-color: #1877f2;
