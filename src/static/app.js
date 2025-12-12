@@ -615,12 +615,26 @@ document.addEventListener("DOMContentLoaded", () => {
     activitiesList.appendChild(activityCard);
   }
 
+  // Helper to sanitize and truncate description for sharing
+  function getSafeDescription(description, maxLength = 100) {
+    if (typeof description !== "string" || !description.trim()) {
+      return "";
+    }
+    // Remove newlines and excessive whitespace
+    let clean = description.replace(/\s+/g, " ").trim();
+    if (clean.length > maxLength) {
+      clean = clean.slice(0, maxLength - 1) + "…";
+    }
+    return clean;
+  }
+
   // Handle social sharing
   function handleShare(classList, activityName, activityDetails) {
     // Create a URL with activity identifier
     const activityParam = encodeURIComponent(activityName);
     const shareUrl = `${window.location.origin}${window.location.pathname}?activity=${activityParam}`;
-    const shareText = `Check out ${activityName} at Mergington High School! ${activityDetails.description}`;
+    const safeDescription = getSafeDescription(activityDetails.description, 200);
+    const shareText = `Check out ${activityName} at Mergington High School!${safeDescription ? " " + safeDescription : ""}`;
     const shareTitle = `${activityName} - Mergington High School`;
 
     if (classList.contains("share-facebook")) {
