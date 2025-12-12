@@ -307,22 +307,22 @@ section h3 {
 }
 
 .share-btn.share-facebook:hover {
-  background-color: #1877f2;
+  background-color: #e7f3ff;
   border-color: #1877f2;
 }
 
 .share-btn.share-twitter:hover {
-  background-color: #1da1f2;
+  background-color: #e8f5fd;
   border-color: #1da1f2;
 }
 
 .share-btn.share-email:hover {
-  background-color: #ea4335;
+  background-color: #ffebee;
   border-color: #ea4335;
 }
 
 .share-btn.share-copy:hover {
-  background-color: var(--success);
+  background-color: var(--success-light);
   border-color: var(--success);
 }
 

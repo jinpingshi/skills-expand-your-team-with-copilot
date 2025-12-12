@@ -628,13 +628,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
         shareUrl
       )}&quote=${encodeURIComponent(shareText)}`;
-      window.open(facebookUrl, "_blank", "width=600,height=400");
+      window.open(facebookUrl, "_blank", "width=600,height=400,noopener,noreferrer");
     } else if (classList.contains("share-twitter")) {
       // Twitter share
       const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
         shareText
       )}&url=${encodeURIComponent(shareUrl)}`;
-      window.open(twitterUrl, "_blank", "width=600,height=400");
+      window.open(twitterUrl, "_blank", "width=600,height=400,noopener,noreferrer");
     } else if (classList.contains("share-email")) {
       // Email share
       const emailSubject = encodeURIComponent(shareTitle);
