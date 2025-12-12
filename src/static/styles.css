@@ -82,7 +82,7 @@ body {
   padding: 12px;
   background-color: var(--background);
   font-size: 0.9rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 header {
@@ -727,7 +727,7 @@ body.not-authenticated #user-controls {
   right: 60px;
 }
 
-body:not(.not-authenticated) #dark-mode-toggle {
+body.authenticated #dark-mode-toggle {
   right: auto;
   left: 15px;
 }
