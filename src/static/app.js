@@ -555,16 +555,16 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="share-container">
         <div class="share-label">Share with friends:</div>
         <div class="share-buttons">
-          <button class="share-btn share-facebook" data-activity="${name}" title="Share on Facebook">
+          <button class="share-btn share-facebook" data-activity="${name}" title="Share on Facebook" aria-label="Share on Facebook">
             <span class="share-icon">📘</span>
           </button>
-          <button class="share-btn share-twitter" data-activity="${name}" title="Share on Twitter">
+          <button class="share-btn share-twitter" data-activity="${name}" title="Share on Twitter" aria-label="Share on Twitter">
             <span class="share-icon">🐦</span>
           </button>
-          <button class="share-btn share-email" data-activity="${name}" title="Share via Email">
+          <button class="share-btn share-email" data-activity="${name}" title="Share via Email" aria-label="Share via Email">
             <span class="share-icon">📧</span>
           </button>
-          <button class="share-btn share-copy" data-activity="${name}" title="Copy link">
+          <button class="share-btn share-copy" data-activity="${name}" title="Copy link" aria-label="Copy link">
             <span class="share-icon">🔗</span>
           </button>
         </div>
