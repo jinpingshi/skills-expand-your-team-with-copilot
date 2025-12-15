@@ -552,6 +552,23 @@ document.addEventListener("DOMContentLoaded", () => {
             .join("")}
         </ul>
       </div>
+      <div class="share-container">
+        <div class="share-label">Share with friends:</div>
+        <div class="share-buttons">
+          <button class="share-btn share-facebook" data-activity="${name}" data-platform="facebook" title="Share on Facebook" aria-label="Share on Facebook">
+            <span class="share-icon" aria-hidden="true">📘</span>
+          </button>
+          <button class="share-btn share-twitter" data-activity="${name}" data-platform="twitter" title="Share on Twitter" aria-label="Share on Twitter">
+            <span class="share-icon" aria-hidden="true">🐦</span>
+          </button>
+          <button class="share-btn share-email" data-activity="${name}" data-platform="email" title="Share via Email" aria-label="Share via Email">
+            <span class="share-icon" aria-hidden="true">📧</span>
+          </button>
+          <button class="share-btn share-copy" data-activity="${name}" data-platform="copy" title="Copy link to share" aria-label="Copy link to share">
+            <span class="share-icon" aria-hidden="true">🔗</span>
+          </button>
+        </div>
+      </div>
       <div class="activity-card-actions">
         ${
           currentUser
@@ -587,7 +604,99 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Add click handlers for share buttons
+    const shareButtons = activityCard.querySelectorAll(".share-btn");
+    shareButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const platform = button.dataset.platform;
+        handleShare(platform, name, details);
+      });
+    });
+
     activitiesList.appendChild(activityCard);
+  }
+
+  // Helper to sanitize and truncate description for sharing
+  function getSafeDescription(description, maxLength = 200) {
+    if (typeof description !== "string" || !description.trim()) {
+      return "";
+    }
+    // Remove newlines and excessive whitespace
+    let clean = description.replace(/\s+/g, " ").trim();
+    if (clean.length > maxLength) {
+      clean = clean.slice(0, maxLength - 1) + "…";
+    }
+    return clean;
+  }
+
+  // Handle social sharing
+  function handleShare(platform, activityName, activityDetails) {
+    // Create a URL with activity identifier
+    const activityParam = encodeURIComponent(activityName);
+    const shareUrl = `${window.location.origin}${window.location.pathname}?activity=${activityParam}`;
+    const safeDescription = getSafeDescription(activityDetails.description);
+    const shareText = `Check out ${activityName} at Mergington High School!${safeDescription ? " " + safeDescription : ""}`;
+    const shareTitle = `${activityName} - Mergington High School`;
+
+    switch (platform) {
+      case "facebook":
+        // Facebook share
+        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          shareUrl
+        )}&quote=${encodeURIComponent(shareText)}`;
+        window.open(facebookUrl, "_blank", "width=600,height=400,noopener,noreferrer");
+        break;
+      
+      case "twitter":
+        // Twitter share
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          shareText
+        )}&url=${encodeURIComponent(shareUrl)}`;
+        window.open(twitterUrl, "_blank", "width=600,height=400,noopener,noreferrer");
+        break;
+      
+      case "email":
+        // Email share
+        const emailSubject = encodeURIComponent(shareTitle);
+        const emailBody = encodeURIComponent(
+          `${shareText}\n\nLearn more: ${shareUrl}`
+        );
+        window.location.href = `mailto:?subject=${emailSubject}&body=${emailBody}`;
+        break;
+      
+      case "copy":
+        // Copy link to clipboard with fallback for older browsers
+        const linkText = `${shareTitle}\n${shareText}\n${shareUrl}`;
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard
+            .writeText(linkText)
+            .then(() => {
+              showMessage("Link copied to clipboard!", "success");
+            })
+            .catch((err) => {
+              console.error("Failed to copy:", err);
+              showMessage("Failed to copy link. Please try again.", "error");
+            });
+        } else {
+          // Fallback for browsers without clipboard API
+          const textArea = document.createElement("textarea");
+          textArea.value = linkText;
+          textArea.style.position = "fixed";
+          textArea.style.left = "-999999px";
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand("copy");
+            showMessage("Link copied to clipboard!", "success");
+          } catch (err) {
+            console.error("Fallback copy failed:", err);
+            showMessage("Failed to copy link. Please try again.", "error");
+          }
+          document.body.removeChild(textArea);
+        }
+        break;
+    }
   }
 
   // Event listeners for search and filter
@@ -855,6 +964,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Handle shared link with activity parameter
+  function handleSharedActivityLink() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const activityName = urlParams.get("activity");
+    
+    if (activityName) {
+      // Wait for activities to load, then scroll to the activity
+      const checkAndScroll = setInterval(() => {
+        const activityCards = document.querySelectorAll(".activity-card");
+        
+        for (const card of activityCards) {
+          const cardTitle = card.querySelector("h4");
+          if (cardTitle && cardTitle.textContent === activityName) {
+            // Scroll to the activity card
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            
+            // Highlight the card temporarily
+            card.style.transition = "all 0.3s ease";
+            card.style.backgroundColor = "#fffbea";
+            card.style.boxShadow = "0 0 0 3px var(--primary-light)";
+            
+            // Remove highlight after 3 seconds
+            setTimeout(() => {
+              card.style.backgroundColor = "";
+              card.style.boxShadow = "";
+            }, 3000);
+            
+            clearInterval(checkAndScroll);
+            break;
+          }
+        }
+      }, 100);
+      
+      // Stop checking after 5 seconds if activity not found
+      setTimeout(() => clearInterval(checkAndScroll), 5000);
+    }
+  }
+
   // Expose filter functions to window for future UI control
   window.activityFilters = {
     setDayFilter,
@@ -864,5 +1011,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   checkAuthentication();
   initializeFilters();
-  fetchActivities();
+  fetchActivities().then(() => {
+    // Handle shared link after activities are loaded
+    handleSharedActivityLink();
+  });
 });
