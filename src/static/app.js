@@ -26,6 +26,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
 
+  // Dark mode elements
+  const darkModeToggle = document.getElementById("dark-mode-toggle");
+  const darkModeIcon = document.getElementById("dark-mode-icon");
+
   // Activity categories with corresponding colors
   const activityTypes = {
     sports: { label: "Sports", color: "#e8f5e9", textColor: "#2e7d32" },
@@ -106,6 +110,42 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchActivities();
   }
 
+  // Dark mode functions
+  // These functions allow users to switch between light and dark themes
+  
+  // Initialize dark mode: This runs when the page loads and checks if the user
+  // previously selected dark mode. localStorage is like the browser's memory -
+  // it remembers the user's choice even after closing the browser.
+  function initializeDarkMode() {
+    // Check for saved dark mode preference in browser memory
+    const isDarkMode = localStorage.getItem("darkMode") === "true";
+    if (isDarkMode) {
+      // User previously chose dark mode, so apply it
+      document.body.classList.add("dark-mode");
+      darkModeIcon.textContent = "☀️";
+      darkModeToggle.setAttribute("aria-label", "Switch to light mode");
+    } else {
+      // User is in light mode
+      darkModeIcon.textContent = "🌙";
+      darkModeToggle.setAttribute("aria-label", "Switch to dark mode");
+    }
+  }
+
+  // Toggle dark mode: This runs when the user clicks the dark mode button
+  // It switches between light and dark themes and saves the choice
+  function toggleDarkMode() {
+    // Switch the theme (if dark, make it light; if light, make it dark)
+    const isDarkMode = document.body.classList.toggle("dark-mode");
+    // Save the user's choice in browser memory so it persists
+    localStorage.setItem("darkMode", String(isDarkMode));
+    // Update the button icon and label based on current mode
+    darkModeIcon.textContent = isDarkMode ? "☀️" : "🌙";
+    darkModeToggle.setAttribute("aria-label", isDarkMode ? "Switch to light mode" : "Switch to dark mode");
+  }
+
+  // Event listener for dark mode toggle
+  darkModeToggle.addEventListener("click", toggleDarkMode);
+
   // Check if user is already logged in (from localStorage)
   function checkAuthentication() {
     const savedUser = localStorage.getItem("currentUser");
@@ -169,8 +209,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateAuthBodyClass() {
     if (currentUser) {
       document.body.classList.remove("not-authenticated");
+      document.body.classList.add("authenticated");
     } else {
       document.body.classList.add("not-authenticated");
+      document.body.classList.remove("authenticated");
     }
   }
 
@@ -1043,6 +1085,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initialize app
+  initializeDarkMode();
   checkAuthentication();
   initializeFilters();
   fetchActivities().then(() => {
